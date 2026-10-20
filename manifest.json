@@ -1,0 +1,10 @@
+{
+  "name": "Bar Cost Calculator",
+  "short_name": "Bar Cost",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#f4f1eb",
+  "theme_color": "#202124",
+  "description": "Draft beer and liquor pour-cost calculator"
+}

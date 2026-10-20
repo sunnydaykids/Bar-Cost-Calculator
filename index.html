@@ -1,0 +1,179 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#202124">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Bar Cost">
+<link rel="manifest" href="manifest.json">
+<title>Bar Cost Calculator</title>
+<style>
+:root{--bg:#f4f1eb;--card:#fffdf9;--ink:#252525;--muted:#6d6a64;--accent:#b87b32;--line:#e2ddd3;--dark:#202124;--good:#28734c}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.45 -apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}
+header{background:var(--dark);color:#fff;padding:24px 18px 22px;border-bottom:4px solid var(--accent)}
+.wrap{max-width:900px;margin:0 auto;padding:0 14px}
+.kicker{text-transform:uppercase;letter-spacing:.13em;font-size:11px;color:#d8a152;font-weight:700}
+h1{font-size:27px;line-height:1.15;margin:5px 0 6px}header p{margin:0;color:#e2dfd9;font-size:14px}
+main{padding:18px 0 38px}.tabs{display:flex;gap:8px;margin:0 0 16px}
+.tab{flex:1;border:1px solid var(--line);background:#ebe6dc;color:var(--ink);padding:12px 8px;border-radius:12px;font-weight:700;font-size:15px}
+.tab.active{background:var(--dark);color:#fff;border-color:var(--dark)}
+.panel{display:none}.panel.active{display:block}
+.card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:16px;margin-bottom:14px;box-shadow:0 2px 8px #1d1a1510}
+h2{font-size:19px;margin:0 0 4px}h3{font-size:15px;margin:0 0 12px}
+.sub{font-size:13px;color:var(--muted);margin:0 0 15px}
+.fieldgrid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+.field{min-width:0}.field.full{grid-column:1/-1}label{display:block;font-size:13px;font-weight:700;margin:0 0 5px;color:#4c4943}
+input,select{width:100%;min-width:0;border:1px solid #cfc8bc;background:white;border-radius:10px;padding:12px;font:inherit;color:var(--ink)}
+input:focus,select:focus{outline:2px solid #d8a152;outline-offset:1px}
+input[type=number]{font-variant-numeric:tabular-nums}
+.results{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin-top:14px}
+.metric{border:1px solid var(--line);border-radius:12px;padding:12px;background:#fff}
+.metric .label{font-size:12px;color:var(--muted);margin-bottom:3px}
+.metric .value{font-size:21px;font-weight:750;font-variant-numeric:tabular-nums;overflow-wrap:anywhere}
+.metric .detail{font-size:12px;color:var(--muted);margin-top:3px}
+.tablewrap{overflow-x:auto;margin-top:12px}
+table{width:100%;border-collapse:collapse;font-size:13px;min-width:450px}
+th,td{text-align:right;padding:10px 8px;border-bottom:1px solid var(--line);font-variant-numeric:tabular-nums}
+th:first-child,td:first-child{text-align:left}th{font-size:12px;color:var(--muted);font-weight:700}
+.note{background:#f4ead8;border-left:3px solid var(--accent);padding:11px 12px;border-radius:7px;font-size:13px;color:#4c4030;margin-top:12px}
+.pill{display:inline-block;background:#eee5d7;border-radius:999px;padding:4px 8px;font-size:11px;font-weight:700;color:#62451e}
+.sectiontitle{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:10px}
+small,.muted{color:var(--muted)}.empty{color:var(--muted);font-size:13px}
+footer{text-align:center;font-size:12px;color:var(--muted);padding:0 10px 25px}
+@media(min-width:650px){.results{grid-template-columns:repeat(4,minmax(0,1fr))}.fieldgrid.kegs{grid-template-columns:repeat(3,minmax(0,1fr))}}
+@media(max-width:380px){.fieldgrid{grid-template-columns:1fr}.results{grid-template-columns:1fr 1fr}.metric .value{font-size:19px}}
+</style>
+</head>
+<body>
+<header><div class="wrap"><div class="kicker">Restaurant & bar tool</div><h1>Bar Cost Calculator</h1><p>Enter your purchase cost. Get pour cost and target menu prices.</p></div></header>
+<main class="wrap">
+<div class="tabs" role="tablist">
+<button class="tab active" data-tab="beer" role="tab" aria-selected="true">Draft Beer</button>
+<button class="tab" data-tab="liquor" role="tab" aria-selected="false">Liquor</button>
+</div>
+<section id="beer" class="panel active">
+<div class="card">
+<div class="sectiontitle"><h2>Draft beer</h2><span class="pill">Per keg size</span></div>
+<p class="sub">Enter a beer name and the price for any keg sizes you buy. Each size is calculated independently.</p>
+<div class="fieldgrid">
+<div class="field full"><label for="beerName">Beer name (optional)</label><input id="beerName" placeholder="e.g. Bud Light" autocomplete="off"></div>
+</div>
+<div class="fieldgrid kegs" style="margin-top:12px">
+<div class="field"><label for="sixthPrice">Sixth barrel price ($)</label><input id="sixthPrice" type="number" min="0" step="0.01" placeholder="e.g. 85.00"></div>
+<div class="field"><label for="quarterPrice">Quarter barrel price ($)</label><input id="quarterPrice" type="number" min="0" step="0.01" placeholder="e.g. 110.00"></div>
+<div class="field"><label for="halfPrice">Half barrel price ($)</label><input id="halfPrice" type="number" min="0" step="0.01" placeholder="e.g. 190.00"></div>
+</div>
+<div class="fieldgrid" style="margin-top:12px">
+<div class="field"><label for="pintOz">Pint pour (fl oz)</label><input id="pintOz" type="number" min="0.1" step="0.1" value="16"></div>
+<div class="field"><label for="tallOz">Tall pour (fl oz)</label><input id="tallOz" type="number" min="0.1" step="0.1" value="22"></div>
+</div>
+<div class="note">Keg capacities used: sixth barrel = 665 oz, quarter barrel = 992 oz, half barrel = 1,984 oz. These are the working capacities you described; actual usable yield can be lower due to foam, line loss, and waste.</div>
+</div>
+<div id="beerResults"></div>
+</section>
+<section id="liquor" class="panel">
+<div class="card">
+<div class="sectiontitle"><h2>Liquor</h2><span class="pill">1.5 oz shot</span></div>
+<p class="sub">Enter a bottle price in the matching size. You can fill in one or both sizes.</p>
+<div class="fieldgrid">
+<div class="field"><label for="liquorName">Liquor name (optional)</label><input id="liquorName" placeholder="e.g. Well vodka" autocomplete="off"></div>
+<div class="field"><label for="shotOz">Shot size (fl oz)</label><input id="shotOz" type="number" min="0.1" step="0.1" value="1.5"></div>
+<div class="field"><label for="bottle750">750 mL bottle price ($)</label><input id="bottle750" type="number" min="0" step="0.01" placeholder="e.g. 14.99"></div>
+<div class="field"><label for="bottle1L">1 liter bottle price ($)</label><input id="bottle1L" type="number" min="0" step="0.01" placeholder="e.g. 18.99"></div>
+</div>
+<div class="note">Bottle conversions use US fluid ounces: 750 mL ≈ 25.36 fl oz; 1 liter ≈ 33.81 fl oz. The shot count is theoretical and does not include spillage or over-pouring.</div>
+</div>
+<div id="liquorResults"></div>
+</section>
+<div class="card">
+<h2>How to read the prices</h2>
+<p class="sub" style="margin-bottom:8px">Target menu price is the drink's ingredient cost divided by the target cost percentage.</p>
+<div class="tablewrap"><table><thead><tr><th>Target cost</th><th>Calculation</th><th>Meaning</th></tr></thead><tbody>
+<tr><td>20%</td><td>Drink cost ÷ 0.20</td><td>Higher selling price</td></tr>
+<tr><td>25%</td><td>Drink cost ÷ 0.25</td><td>Middle target</td></tr>
+<tr><td>30%</td><td>Drink cost ÷ 0.30</td><td>Lower selling price</td></tr>
+</tbody></table></div>
+<p class="sub" style="margin:10px 0 0">Suggested prices are shown both as the exact calculated amount and rounded up to the next $0.25. Rounded prices are a convenience, not a required menu price.</p>
+</div>
+</main>
+<footer>Bar Cost Calculator · Calculations happen on this device. No account or bank connection.</footer>
+<script>
+const $ = id => document.getElementById(id);
+const money = n => Number.isFinite(n) ? n.toLocaleString('en-US',{style:'currency',currency:'USD'}) : '—';
+const num = id => { const v = $(id).value.trim(); return v === '' ? null : Number(v); };
+const fmt = (n, digits=4) => Number.isFinite(n) ? n.toLocaleString('en-US',{minimumFractionDigits:0,maximumFractionDigits:digits}) : '—';
+const roundQuarterUp = n => Math.ceil((n - 1e-10) * 4) / 4;
+function targetTable(cost, label){
+  if (!Number.isFinite(cost) || cost < 0) return '';
+  const rows = [20,25,30].map(p => {
+    const exact = cost/(p/100), rounded = roundQuarterUp(exact);
+    return `<tr><td>${p}%</td><td>${money(exact)}</td><td><strong>${money(rounded)}</strong></td></tr>`;
+  }).join('');
+  return `<div class="tablewrap"><table><thead><tr><th>Target cost</th><th>Exact price</th><th>Rounded up to $0.25</th></tr></thead><tbody>${rows}</tbody></table></div>`;
+}
+function renderBeer(){
+ const sizes = [
+  {id:'sixthPrice',name:'Sixth barrel',oz:665},
+  {id:'quarterPrice',name:'Quarter barrel',oz:992},
+  {id:'halfPrice',name:'Half barrel',oz:1984}
+ ];
+ const pint = num('pintOz'), tall = num('tallOz');
+ const title = $('beerName').value.trim();
+ let out = '';
+ sizes.forEach(s=>{
+  const price = num(s.id);
+  if(price === null || !Number.isFinite(price) || price < 0) return;
+  const perOz = price/s.oz;
+  const pintCost = (pint>0 ? perOz*pint : NaN);
+  const tallCost = (tall>0 ? perOz*tall : NaN);
+  out += `<div class="card"><div class="sectiontitle"><h2>${title ? esc(title)+' · ' : ''}${s.name}</h2><span class="pill">${s.oz.toLocaleString()} fl oz</span></div>
+   <div class="results">
+    <div class="metric"><div class="label">Keg cost</div><div class="value">${money(price)}</div></div>
+    <div class="metric"><div class="label">Cost per ounce</div><div class="value">${money(perOz)}</div></div>
+    <div class="metric"><div class="label">Cost per pint (${fmt(pint,1)} oz)</div><div class="value">${money(pintCost)}</div></div>
+    <div class="metric"><div class="label">Cost per tall (${fmt(tall,1)} oz)</div><div class="value">${money(tallCost)}</div></div>
+   </div>
+   <h3 style="margin-top:16px">Pint menu price · ${money(pintCost)} ingredient cost</h3>${targetTable(pintCost)}
+   <h3 style="margin-top:16px">Tall menu price · ${money(tallCost)} ingredient cost</h3>${targetTable(tallCost)}
+  </div>`;
+ });
+ $('beerResults').innerHTML = out || '<div class="card empty">Enter a price for any keg size above to see its calculations.</div>';
+}
+function renderLiquor(){
+ const shot = num('shotOz');
+ const bottleSizes = [
+  {id:'bottle750',name:'750 mL bottle',oz:750/29.5735295625},
+  {id:'bottle1L',name:'1 liter bottle',oz:1000/29.5735295625}
+ ];
+ const title = $('liquorName').value.trim();
+ let out='';
+ bottleSizes.forEach(b=>{
+  const price = num(b.id);
+  if(price === null || !Number.isFinite(price) || price < 0) return;
+  const perOz=price/b.oz;
+  const shots=shot>0 ? b.oz/shot : NaN;
+  const shotCost=shot>0 ? perOz*shot : NaN;
+  out += `<div class="card"><div class="sectiontitle"><h2>${title ? esc(title)+' · ' : ''}${b.name}</h2><span class="pill">${fmt(b.oz,2)} fl oz</span></div>
+   <div class="results">
+    <div class="metric"><div class="label">Bottle cost</div><div class="value">${money(price)}</div></div>
+    <div class="metric"><div class="label">Cost per ounce</div><div class="value">${money(perOz)}</div></div>
+    <div class="metric"><div class="label">Theoretical shots</div><div class="value">${fmt(shots,2)}</div><div class="detail">At ${fmt(shot,2)} oz each</div></div>
+    <div class="metric"><div class="label">Cost per shot</div><div class="value">${money(shotCost)}</div></div>
+   </div>
+   <h3 style="margin-top:16px">Shot menu price · ${money(shotCost)} ingredient cost</h3>${targetTable(shotCost)}
+  </div>`;
+ });
+ $('liquorResults').innerHTML = out || '<div class="card empty">Enter a bottle price above to see the calculations.</div>';
+}
+function esc(s){return s.replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
+document.querySelectorAll('.tab').forEach(btn=>btn.addEventListener('click',()=>{
+ document.querySelectorAll('.tab').forEach(b=>{b.classList.toggle('active',b===btn);b.setAttribute('aria-selected',b===btn?'true':'false');});
+ document.querySelectorAll('.panel').forEach(p=>p.classList.toggle('active',p.id===btn.dataset.tab));
+}));
+document.querySelectorAll('input').forEach(input=>input.addEventListener('input',()=>{renderBeer();renderLiquor();}));
+renderBeer();renderLiquor();
+if ('serviceWorker' in navigator && location.protocol.startsWith('http')) window.addEventListener('load',()=>navigator.serviceWorker.register('./sw.js').catch(()=>{}));
+</script>
+</body></html>
